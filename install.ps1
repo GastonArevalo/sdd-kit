@@ -24,7 +24,7 @@ if (Test-Path $vsCodeUserDir) {
     $vsCodeChoice = Read-Host "VS Code detected. Install for VS Code Copilot? [Y/n]"
     if ($vsCodeChoice -ne 'n' -and $vsCodeChoice -ne 'N') { $installVSCode = $true }
 } else {
-    Write-Host "VS Code not detected — skipping VS Code Copilot." -ForegroundColor DarkGray
+    Write-Host "VS Code not detected - skipping VS Code Copilot." -ForegroundColor DarkGray
 }
 
 if (-not $installClaude -and -not $installVSCode) {
@@ -73,7 +73,7 @@ function Install-Skills {
 
 if ($installClaude) {
     $ClaudeDir = "$env:USERPROFILE\.claude"
-    Write-Host "→ Installing for Claude Code ($ClaudeDir)..." -ForegroundColor Yellow
+    Write-Host ">> Installing for Claude Code ($ClaudeDir)..." -ForegroundColor Yellow
 
     Install-Skills -SkillsDir "$ClaudeDir\skills"
 
@@ -81,14 +81,14 @@ if ($installClaude) {
     New-Item -ItemType Directory -Force -Path $CommandsDir | Out-Null
     Copy-Item "$ScriptDir\commands\*.md" $CommandsDir -Force
 
-    Write-Host "  ✓ Skills installed to ~/.claude/skills/" -ForegroundColor Green
-    Write-Host "  ✓ Commands installed to ~/.claude/commands/" -ForegroundColor Green
+    Write-Host "  [OK] Skills installed to ~/.claude/skills/" -ForegroundColor Green
+    Write-Host "  [OK] Commands installed to ~/.claude/commands/" -ForegroundColor Green
 
     $ClaudeMd = "$ClaudeDir\CLAUDE.md"
     Write-Host ""
-    Write-Host "─────────────────────────────────────────────────" -ForegroundColor DarkGray
-    Write-Host "Claude Code — NEXT STEP (manual)" -ForegroundColor White
-    Write-Host "─────────────────────────────────────────────────" -ForegroundColor DarkGray
+    Write-Host "-------------------------------------------------" -ForegroundColor DarkGray
+    Write-Host "Claude Code - NEXT STEP (manual)" -ForegroundColor White
+    Write-Host "-------------------------------------------------" -ForegroundColor DarkGray
     Write-Host ""
     Write-Host "Open: $ClaudeMd"
     Write-Host "If the file doesn't exist, create it."
@@ -109,7 +109,7 @@ if ($installClaude) {
     Write-Host "  [content of CLAUDE-sdd-orchestrator.md]"     -ForegroundColor DarkGray
     Write-Host "  <!-- /sdd:orchestrator -->"                   -ForegroundColor DarkGray
     Write-Host ""
-    Write-Host "─────────────────────────────────────────────────" -ForegroundColor DarkGray
+    Write-Host "-------------------------------------------------" -ForegroundColor DarkGray
     Write-Host ""
 }
 
@@ -119,20 +119,20 @@ if ($installVSCode) {
     $CopilotSkillsDir = "$env:USERPROFILE\.copilot\skills"
     $PromptsDir       = "$vsCodeUserDir\prompts"
 
-    Write-Host "→ Installing for VS Code Copilot..." -ForegroundColor Yellow
+    Write-Host ">> Installing for VS Code Copilot..." -ForegroundColor Yellow
 
     Install-Skills -SkillsDir $CopilotSkillsDir
 
     New-Item -ItemType Directory -Force -Path $PromptsDir | Out-Null
     Copy-Item "$ScriptDir\sdd.instructions.md" "$PromptsDir\sdd.instructions.md" -Force
 
-    Write-Host "  ✓ Skills installed to ~/.copilot/skills/" -ForegroundColor Green
-    Write-Host "  ✓ sdd.instructions.md installed to Code\User\prompts\" -ForegroundColor Green
+    Write-Host "  [OK] Skills installed to ~/.copilot/skills/" -ForegroundColor Green
+    Write-Host "  [OK] sdd.instructions.md installed to Code\User\prompts\" -ForegroundColor Green
 
     Write-Host ""
-    Write-Host "─────────────────────────────────────────────────" -ForegroundColor DarkGray
-    Write-Host "VS Code Copilot — NEXT STEP (manual)" -ForegroundColor White
-    Write-Host "─────────────────────────────────────────────────" -ForegroundColor DarkGray
+    Write-Host "-------------------------------------------------" -ForegroundColor DarkGray
+    Write-Host "VS Code Copilot - NEXT STEP (manual)" -ForegroundColor White
+    Write-Host "-------------------------------------------------" -ForegroundColor DarkGray
     Write-Host ""
     Write-Host "Enable instructions files in VS Code settings:"
     Write-Host "  Open: File > Preferences > Settings"
@@ -140,7 +140,7 @@ if ($installVSCode) {
     Write-Host "  Set to: true"
     Write-Host ""
     Write-Host "To verify: open Copilot Chat in VS Code and type /sdd-init"
-    Write-Host "─────────────────────────────────────────────────" -ForegroundColor DarkGray
+    Write-Host "-------------------------------------------------" -ForegroundColor DarkGray
     Write-Host ""
 }
 
