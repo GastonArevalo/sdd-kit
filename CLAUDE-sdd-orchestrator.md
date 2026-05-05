@@ -44,8 +44,9 @@ Skills (appear in autocomplete with `/`):
 Meta-commands (type directly — you handle them, not a skill):
 - `/sdd-new <change>` → explore + propose in sequence
 - `/sdd-ff <name>` → fast-forward: proposal → specs → design → tasks
+- `/sdd-continue [change]` → read `state.yaml` from the active change and run the next dependency-ready phase
 
-`/sdd-new` and `/sdd-ff` are meta-commands you handle inline. Do NOT invoke them as skills.
+`/sdd-new`, `/sdd-ff`, and `/sdd-continue` are meta-commands you handle inline. Do NOT invoke them as skills.
 
 ### SDD Init Guard (MANDATORY)
 
@@ -79,6 +80,21 @@ proposal -> specs --> tasks -> apply -> verify -> archive
              |
            design
 ```
+
+### State Tracking
+
+After each phase returns `status: success`, write `openspec/changes/{change-name}/state.yaml`:
+
+```yaml
+phase: <just-completed-phase>   # one of: proposal, specs, design, tasks, apply, verify, archive
+last_updated: <YYYY-MM-DD>      # today's date, ISO-8601, no time component
+```
+
+**Rules**:
+- Write ONLY on `status: success`. If the phase returns `status: blocked`, leave `state.yaml` unchanged.
+- The orchestrator is the sole writer — phase skills never write this file.
+- Overwrite the file on every successful write (two-field schema, no append).
+- On `/sdd-continue`: read `state.yaml` to find the last completed phase, then derive the next phase from the DAG. If the file is missing, fall back to filesystem inspection (check which artifacts exist) or ask the user which phase to start from.
 
 ### Result Contract
 
@@ -144,6 +160,8 @@ Each phase reads and writes specific files:
 | `sdd-archive` | all above | moves to archive, updates `openspec/specs/` |
 
 For phases with dependencies, pass FILE PATHS to the sub-agent — not content — to avoid inflating context.
+
+> **Post-phase write (MANDATORY)**: after each phase returns `status: success`, write `state.yaml` BEFORE surfacing the result to the user. See the **State Tracking** section above for the schema and rules.
 
 #### Strict TDD Forwarding (MANDATORY)
 
