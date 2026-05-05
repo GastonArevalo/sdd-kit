@@ -1,0 +1,47 @@
+# openspec/config.yaml
+schema: spec-driven
+
+context: |
+  Tech stack: Markdown, PowerShell
+  Architecture: Skill-based AI agent kit (orchestrator + sub-agents)
+  Testing: none — documentation/configuration project
+  Style: kebab-case filenames, YAML frontmatter on skill files
+
+strict_tdd: false
+
+testing:
+  test_runner:
+    command: ""
+    framework: ""
+  layers:
+    unit: false
+    integration: false
+    e2e: false
+  coverage:
+    available: false
+    command: ""
+  quality_tools:
+    linter: ""
+    type_checker: ""
+    formatter: ""
+
+rules:
+  proposal:
+    - Include rollback plan for risky changes
+    - Identify affected files explicitly
+  specs:
+    - Use Given/When/Then format for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+  design:
+    - Document architecture decisions with rationale
+  tasks:
+    - Group tasks by phase
+    - Use hierarchical numbering (1.1, 1.2, etc.)
+  apply:
+    - Follow existing markdown structure and conventions
+    - Do not rename existing files — this is a distributed kit
+  verify:
+    - Check every referenced file path exists
+    - Verify install.ps1 copies new files correctly
+  archive:
+    - Warn before merging destructive deltas
