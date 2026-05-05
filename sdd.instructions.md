@@ -46,8 +46,9 @@ Skills (appear in autocomplete with `/`):
 Meta-commands (type directly — you handle them):
 - `/sdd-new <change>` → explore + propose in sequence
 - `/sdd-ff <name>` → fast-forward: proposal → specs → design → tasks
+- `/sdd-continue [change]` → read `state.yaml` from the active change and run the next dependency-ready phase
 
-`/sdd-new` and `/sdd-ff` are meta-commands you handle inline. Do NOT invoke them as skills.
+`/sdd-new`, `/sdd-ff`, and `/sdd-continue` are meta-commands you handle inline. Do NOT invoke them as skills.
 
 ### SDD Init Guard (MANDATORY)
 
@@ -126,3 +127,20 @@ When running `sdd-apply` or `sdd-verify`:
 ### State Recovery
 
 If the conversation is interrupted and the user resumes, check `openspec/changes/{change-name}/` to see which artifacts already exist and which phase to resume from.
+
+## Fallback (No Agent Mode)
+
+If you do not have access to delegation tools (no Agent / Task tool available in this VS Code Copilot context), switch to **inline execution mode**:
+
+1. For every SDD phase, read the skill file directly at `~/.copilot/skills/{phase}/SKILL.md` and execute its instructions yourself in this conversation.
+2. Narrate which sub-agent you would have delegated to (e.g., "Running sdd-design inline — would normally delegate to the sdd-design sub-agent").
+3. Still write every artifact to its `openspec/` path per the file table above. The artifact contract does NOT change between agent and inline mode.
+4. Still write `openspec/changes/{name}/state.yaml` after each phase succeeds, using the two-field schema:
+   ```yaml
+   phase: <just-completed-phase>
+   last_updated: <YYYY-MM-DD>
+   ```
+5. Skip the Sub-Agent Launch Pattern (no compact-rules injection needed when you are the executor).
+6. Keep the conversation concise — inline execution makes the thread longer, so summarize aggressively after each phase.
+
+This section overrides the Delegation Rules table when delegation is unavailable.
