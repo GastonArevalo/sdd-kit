@@ -38,6 +38,24 @@ openspec/
 | sdd-archive | Moves | `openspec/changes/{change-name}/` → `openspec/changes/archive/YYYY-MM-DD-{change-name}/` |
 | sdd-archive | Updates | `openspec/specs/{domain}/spec.md` (merges deltas into main specs) |
 
+## State File Schema
+
+`openspec/changes/{change-name}/state.yaml` uses a minimal two-field schema:
+
+```yaml
+phase: tasks          # last completed phase name (proposal|specs|design|tasks|apply|verify|archive)
+last_updated: 2026-05-05  # ISO-8601 date, no time component
+```
+
+**Write rules**:
+- The orchestrator is the ONLY writer. Phase skills never write `state.yaml`.
+- The file is written ONLY after a phase returns `status: success`. Blocked phases leave the file unchanged.
+- `sdd-init` does NOT pre-create `state.yaml`. Absence means nothing has completed yet.
+- Field `phase` records the phase that JUST finished — not the next one.
+- Out-of-band edits are tolerated; the orchestrator overwrites on the next successful phase.
+
+**Recovery principle**: if `state.yaml` is missing or disagrees with the filesystem, the filesystem wins. Inspect which artifact files exist (`proposal.md`, `specs/`, `design.md`, `tasks.md`, `verify-report.md`) to determine actual progress.
+
 ## Reading Artifacts
 
 ```
