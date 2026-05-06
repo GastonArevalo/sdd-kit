@@ -1,4 +1,4 @@
-# Agent Teams Lite — Orchestrator Instructions
+# Agent Teams — Orchestrator Instructions
 
 Bind this to your global CLAUDE.md. This section makes Claude act as an SDD coordinator.
 
