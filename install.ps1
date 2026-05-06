@@ -12,9 +12,15 @@ Write-Host ""
 $installClaude = $true
 $installVSCode = $false
 $installSkillCreator = $false
+$installPersona = $false
 
 $claudeChoice = Read-Host "Install for Claude Code? [Y/n]"
 if ($claudeChoice -eq 'n' -or $claudeChoice -eq 'N') { $installClaude = $false }
+
+if ($installClaude) {
+    $personaChoice = Read-Host "Install persona in CLAUDE.md? (shapes tone and teaching style) [y/N]"
+    if ($personaChoice -eq 'y' -or $personaChoice -eq 'Y') { $installPersona = $true }
+}
 
 $skillCreatorChoice = Read-Host "Install skill-creator? (lets the AI create new skills) [y/N]"
 if ($skillCreatorChoice -eq 'y' -or $skillCreatorChoice -eq 'Y') { $installSkillCreator = $true }
@@ -33,6 +39,36 @@ if (-not $installClaude -and -not $installVSCode) {
 }
 
 Write-Host ""
+
+# ── Helper: inject/update a named block in CLAUDE.md ─────────────────────────
+
+function Set-ClaudeMdBlock {
+    param(
+        [string]$FilePath,
+        [string]$MarkerName,
+        [string]$ContentFile
+    )
+
+    $content   = Get-Content $ContentFile -Raw -Encoding UTF8
+    $startTag  = "<!-- sdd:$MarkerName -->"
+    $endTag    = "<!-- /sdd:$MarkerName -->"
+    $block     = "$startTag`n$content`n$endTag"
+
+    if (-not (Test-Path $FilePath)) {
+        Set-Content -Path $FilePath -Value $block -Encoding UTF8
+        return
+    }
+
+    $existing = Get-Content $FilePath -Raw -Encoding UTF8
+
+    if ($existing -match [regex]::Escape($startTag)) {
+        $pattern  = [regex]::Escape($startTag) + "[\s\S]*?" + [regex]::Escape($endTag)
+        $existing = [regex]::Replace($existing, $pattern, $block)
+        Set-Content -Path $FilePath -Value $existing -Encoding UTF8
+    } else {
+        Add-Content -Path $FilePath -Value "`n$block" -Encoding UTF8
+    }
+}
 
 # ── Helper: install skills to a target directory ─────────────────────────────
 
@@ -85,31 +121,14 @@ if ($installClaude) {
     Write-Host "  [OK] Commands installed to ~/.claude/commands/" -ForegroundColor Green
 
     $ClaudeMd = "$ClaudeDir\CLAUDE.md"
-    Write-Host ""
-    Write-Host "-------------------------------------------------" -ForegroundColor DarkGray
-    Write-Host "Claude Code - NEXT STEP (manual)" -ForegroundColor White
-    Write-Host "-------------------------------------------------" -ForegroundColor DarkGray
-    Write-Host ""
-    Write-Host "Open: $ClaudeMd"
-    Write-Host "If the file doesn't exist, create it."
-    Write-Host ""
-    Write-Host "1. (Optional) Add the PERSONA section:"
-    Write-Host "   Copy content from: $ScriptDir\CLAUDE-persona.md"
-    Write-Host ""
-    Write-Host "2. (Required) Add the SDD ORCHESTRATOR section:"
-    Write-Host "   Copy content from: $ScriptDir\CLAUDE-sdd-orchestrator.md"
-    Write-Host ""
-    Write-Host "Wrap each block in markers:"
-    Write-Host ""
-    Write-Host "  <!-- sdd:persona -->"           -ForegroundColor DarkGray
-    Write-Host "  [content of CLAUDE-persona.md]" -ForegroundColor DarkGray
-    Write-Host "  <!-- /sdd:persona -->"           -ForegroundColor DarkGray
-    Write-Host ""
-    Write-Host "  <!-- sdd:orchestrator -->"                    -ForegroundColor DarkGray
-    Write-Host "  [content of CLAUDE-sdd-orchestrator.md]"     -ForegroundColor DarkGray
-    Write-Host "  <!-- /sdd:orchestrator -->"                   -ForegroundColor DarkGray
-    Write-Host ""
-    Write-Host "-------------------------------------------------" -ForegroundColor DarkGray
+
+    if ($installPersona) {
+        Set-ClaudeMdBlock -FilePath $ClaudeMd -MarkerName "persona" -ContentFile "$ScriptDir\CLAUDE-persona.md"
+        Write-Host "  [OK] Persona injected into CLAUDE.md" -ForegroundColor Green
+    }
+
+    Set-ClaudeMdBlock -FilePath $ClaudeMd -MarkerName "orchestrator" -ContentFile "$ScriptDir\CLAUDE-sdd-orchestrator.md"
+    Write-Host "  [OK] SDD Orchestrator injected into CLAUDE.md" -ForegroundColor Green
     Write-Host ""
 }
 
